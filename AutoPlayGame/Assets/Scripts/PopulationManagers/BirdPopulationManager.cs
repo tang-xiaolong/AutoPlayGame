@@ -22,7 +22,7 @@ public class BirdPopulationManager : MonoBehaviour
         GUI.BeginGroup(new Rect(10, 10, 250, 150));
         GUI.Box(new Rect(0, 0, 140, 140), "stats", style);
         GUI.Label(new Rect(10, 25, 200, 30), "Gen: " + generation, style);
-        GUI.Label(new Rect(10, 50, 200, 30), string.Format("Time:{0:0:0}",elapsed), style);
+        GUI.Label(new Rect(10, 50, 200, 30), string.Format("Time:{0:0.0}",elapsed), style);
         GUI.Label(new Rect(10, 75, 200, 30), "Population: " + populations.Count, style);
         GUI.EndGroup();
     }
@@ -43,22 +43,35 @@ public class BirdPopulationManager : MonoBehaviour
         GameObject child = Instantiate(bot, startPos.position, transform.rotation);
         BirdBrain brain = child.GetComponent<BirdBrain>();
         brain.Init();
-        if (Random.Range(0, 100) == 1)//突变
+        if (Random.Range(0, 100) < 5)//突变
             brain.dna.Mutate();
         else//否则就结合
             brain.dna.Combine(parent1.GetComponent<BirdBrain>().dna, parent2.GetComponent<BirdBrain>().dna);
         return child;
     }
 
+    void CalculateScole()
+    {
+        foreach (var item in populations)
+        {
+            BirdBrain birdBrain = item.GetComponent<BirdBrain>();
+            //birdBrain.score = Mathf.Pow(birdBrain.distanceTravel + 1, 3) - Mathf.Pow(birdBrain.crashCount, 2) - birdBrain.dieCount * 10;
+            birdBrain.score = Mathf.Pow(birdBrain.distanceTravel + 1, 3) + birdBrain.aliveTime - Mathf.Pow(birdBrain.crashCount, 2);
+        }
+    }
+
     void BreedNewPopulation()
     {
         Time.timeScale = timeScale;//加快速度
-        List<GameObject> sortList = populations.OrderBy(o => (o.GetComponent<BirdBrain>().distanceTravel)).ToList();
+        CalculateScole();
+        List<GameObject> sortList = populations.OrderBy(o => (o.GetComponent<BirdBrain>().score)).ToList();
         populations.Clear();
         for (int i = (int)(sortList.Count * 9.0/10) - 1 ; i < sortList.Count - 1; i++)
         {
             for (int j = 0; j < 5; j++)
             {
+                Debug.Log(sortList[i].GetComponent<BirdBrain>().distanceTravel+"  " + sortList[i].GetComponent<BirdBrain>().crashCount);
+                Debug.Log(sortList[i+1].GetComponent<BirdBrain>().distanceTravel+"  " + sortList[i+1].GetComponent<BirdBrain>().crashCount);
                 populations.Add(Breed(sortList[i], sortList[i + 1]));
                 populations.Add(Breed(sortList[i+1], sortList[i]));
             }
