@@ -8,6 +8,8 @@ TagManager:
   - top
   - upWall
   - downWall
+  - endLine
+  - died
   layers:
   - Default
   - TransparentFX

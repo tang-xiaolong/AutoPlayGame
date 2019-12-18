@@ -43,7 +43,7 @@ public class BirdPopulationManager : MonoBehaviour
         GameObject child = Instantiate(bot, startPos.position, transform.rotation);
         BirdBrain brain = child.GetComponent<BirdBrain>();
         brain.Init();
-        if (Random.Range(0, 100) < 5)//突变
+        if (Random.Range(0, 100) < 1)//突变
             brain.dna.Mutate();
         else//否则就结合
             brain.dna.Combine(parent1.GetComponent<BirdBrain>().dna, parent2.GetComponent<BirdBrain>().dna);
@@ -52,12 +52,15 @@ public class BirdPopulationManager : MonoBehaviour
 
     void CalculateScole()
     {
+        int winnerNum = 0;
         foreach (var item in populations)
         {
             BirdBrain birdBrain = item.GetComponent<BirdBrain>();
-            //birdBrain.score = Mathf.Pow(birdBrain.distanceTravel + 1, 3) - Mathf.Pow(birdBrain.crashCount, 2) - birdBrain.dieCount * 10;
-            birdBrain.score = Mathf.Pow(birdBrain.distanceTravel + 1, 3) + birdBrain.aliveTime - Mathf.Pow(birdBrain.crashCount, 2);
+            birdBrain.score = Mathf.Pow(birdBrain.distanceTravel + 1, 4) - Mathf.Pow(birdBrain.crashCount, 2) - Mathf.Pow(birdBrain.dieCount, 4) + birdBrain.endLineScore;
+            //birdBrain.score = Mathf.Pow(birdBrain.distanceTravel + 1, 3) + birdBrain.aliveTime - Mathf.Pow(birdBrain.crashCount, 2);
+            if (birdBrain.endLineScore != 0) ++winnerNum;
         }
+        Debug.Log("有"+winnerNum+"只鸟到达了终点！");
     }
 
     void BreedNewPopulation()
@@ -66,14 +69,21 @@ public class BirdPopulationManager : MonoBehaviour
         CalculateScole();
         List<GameObject> sortList = populations.OrderBy(o => (o.GetComponent<BirdBrain>().score)).ToList();
         populations.Clear();
-        for (int i = (int)(sortList.Count * 9.0/10) - 1 ; i < sortList.Count - 1; i++)
+        //for (int i = 0; i < 25; i++)
+        //{
+        //    populations.Add(Breed(sortList[0], sortList[1]));
+        //    populations.Add(Breed(sortList[1], sortList[0]));
+        //    populations.Add(Breed(sortList[2], sortList[3]));
+        //    populations.Add(Breed(sortList[3], sortList[2]));
+        //}
+        for (int i = (int)(sortList.Count * 9 / 10.0) - 1; i < sortList.Count - 1; i++)
         {
             for (int j = 0; j < 5; j++)
             {
-                Debug.Log(sortList[i].GetComponent<BirdBrain>().distanceTravel+"  " + sortList[i].GetComponent<BirdBrain>().crashCount);
-                Debug.Log(sortList[i+1].GetComponent<BirdBrain>().distanceTravel+"  " + sortList[i+1].GetComponent<BirdBrain>().crashCount);
+                //Debug.Log(sortList[i].GetComponent<BirdBrain>().distanceTravel + "  " + sortList[i].GetComponent<BirdBrain>().crashCount);
+                //Debug.Log(sortList[i + 1].GetComponent<BirdBrain>().distanceTravel + "  " + sortList[i + 1].GetComponent<BirdBrain>().crashCount);
                 populations.Add(Breed(sortList[i], sortList[i + 1]));
-                populations.Add(Breed(sortList[i+1], sortList[i]));
+                populations.Add(Breed(sortList[i + 1], sortList[i]));
             }
         }
 
