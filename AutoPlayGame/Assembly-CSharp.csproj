@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Brains\BirdBrain.cs" />
     <Compile Include="Assets\Scripts\DNAs\BirdDNA.cs" />
+    <Compile Include="Assets\Scripts\ORPerceptron.cs" />
     <Compile Include="Assets\Scripts\PopulationManagers\BirdPopulationManager.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>D:/Unity/AutoPlayGame/AutoPlayGame/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>

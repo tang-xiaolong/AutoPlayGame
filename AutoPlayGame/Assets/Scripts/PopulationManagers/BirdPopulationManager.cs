@@ -13,6 +13,8 @@ public class BirdPopulationManager : MonoBehaviour
     public float trailTime = 5;
     public float timeScale = 1;
     int generation = 1;
+    public int maxEpoch = 20;
+    private int nowEpoch = 0;
 
     GUIStyle style = new GUIStyle();
     private void OnGUI()
@@ -63,7 +65,7 @@ public class BirdPopulationManager : MonoBehaviour
         Debug.Log("有"+winnerNum+"只鸟到达了终点！");
     }
 
-    void BreedNewPopulation()
+    void BreedNewPopulation(bool isTrain = true)
     {
         Time.timeScale = timeScale;//加快速度
         CalculateScole();
@@ -76,14 +78,25 @@ public class BirdPopulationManager : MonoBehaviour
         //    populations.Add(Breed(sortList[2], sortList[3]));
         //    populations.Add(Breed(sortList[3], sortList[2]));
         //}
-        for (int i = (int)(sortList.Count * 9 / 10.0) - 1; i < sortList.Count - 1; i++)
+        if(isTrain)
         {
-            for (int j = 0; j < 5; j++)
+            for (int i = (int)(sortList.Count * 9 / 10.0) - 1; i < sortList.Count - 1; i++)
             {
-                //Debug.Log(sortList[i].GetComponent<BirdBrain>().distanceTravel + "  " + sortList[i].GetComponent<BirdBrain>().crashCount);
-                //Debug.Log(sortList[i + 1].GetComponent<BirdBrain>().distanceTravel + "  " + sortList[i + 1].GetComponent<BirdBrain>().crashCount);
-                populations.Add(Breed(sortList[i], sortList[i + 1]));
-                populations.Add(Breed(sortList[i + 1], sortList[i]));
+                for (int j = 0; j < 5; j++)
+                {
+                    //Debug.Log(sortList[i].GetComponent<BirdBrain>().distanceTravel + "  " + sortList[i].GetComponent<BirdBrain>().crashCount);
+                    //Debug.Log(sortList[i + 1].GetComponent<BirdBrain>().distanceTravel + "  " + sortList[i + 1].GetComponent<BirdBrain>().crashCount);
+                    populations.Add(Breed(sortList[i], sortList[i + 1]));
+                    populations.Add(Breed(sortList[i + 1], sortList[i]));
+                }
+            }
+        }
+        else
+        {
+            for(int i = 0;i < sortList.Count / 2;++i)//需要这么多个
+            {
+                populations.Add(Breed(sortList[0], sortList[1]));
+                populations.Add(Breed(sortList[1], sortList[0]));
             }
         }
 
@@ -97,9 +110,13 @@ public class BirdPopulationManager : MonoBehaviour
     private void Update()
     {
         elapsed += Time.deltaTime;
-        if(elapsed >= trailTime)
+        if (elapsed >= trailTime)
         {
-            BreedNewPopulation();
+            if (nowEpoch < maxEpoch)
+                BreedNewPopulation();
+            else
+                BreedNewPopulation(false);
+            nowEpoch += 1;
             elapsed = 0;
         }
     }
